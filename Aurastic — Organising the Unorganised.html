@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<!-- saved from url=(0037)file:///C:/Users/4/Desktop/hello.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Aurastic — Organising the Unorganised</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="./Aurastic — Organising the Unorganised_files/css2" rel="stylesheet">
+<link rel="stylesheet" href="./Aurastic — Organising the Unorganised_files/leaflet.css">
+<script src="./Aurastic — Organising the Unorganised_files/react.production.min.js.download"></script>
+<script src="./Aurastic — Organising the Unorganised_files/react-dom.production.min.js.download"></script>
+<script src="./Aurastic — Organising the Unorganised_files/leaflet-src.min.js.download"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#F8FAFC;color:#1E293B;min-height:100vh;overflow-x:hidden;}
+:root{--orange:#F97316;--orange-light:#FFF7ED;--orange-dark:#EA6C0A;--slate:#1E293B;--slate-light:#475569;--bg:#F8FAFC;--white:#fff;--border:#E2E8F0;--radius:16px;--radius-sm:10px;}
+button{font-family:inherit;cursor:pointer;border:none;outline:none;}
+input,textarea,select{font-family:inherit;outline:none;}
+#root{max-width:430px;margin:0 auto;min-height:100vh;background:#F8FAFC;position:relative;}
+.screen{min-height:100vh;display:flex;flex-direction:column;}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid var(--border);display:flex;padding:8px 0 20px;z-index:100;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;cursor:pointer;border:none;background:none;}
+.nav-label{font-size:10px;font-weight:600;color:#94a3b8;}
+.nav-item.active .nav-label{color:var(--orange);}
+.card{background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:16px;}
+.btn-primary{background:var(--orange);color:#fff;border-radius:12px;padding:14px 20px;font-size:15px;font-weight:700;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;border:none;cursor:pointer;}
+.btn-primary:active{opacity:.85;}
+.btn-outline{background:transparent;color:var(--orange);border:1.5px solid var(--orange);border-radius:12px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-ghost{background:transparent;color:var(--slate-light);border-radius:10px;padding:10px 16px;font-size:14px;font-weight:500;}
+.input-wrap{margin-bottom:14px;}
+.input-wrap label{display:block;font-size:13px;font-weight:600;color:var(--slate);margin-bottom:6px;}
+.input-field{width:100%;background:#F8FAFC;border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;font-size:15px;color:var(--slate);transition:border-color .15s;}
+.input-field:focus{border-color:var(--orange);background:#fff;}
+.input-field::placeholder{color:#94a3b8;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:100px;font-size:11px;font-weight:600;}
+.badge-orange{background:#FFF7ED;color:#C2410C;}
+.badge-green{background:#F0FDF4;color:#15803D;}
+.badge-blue{background:#EFF6FF;color:#1D4ED8;}
+.badge-gray{background:#F1F5F9;color:#475569;}
+.toast-container{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;width:calc(100% - 32px);max-width:400px;pointer-events:none;}
+.toast{background:#1E293B;color:#fff;border-radius:12px;padding:12px 16px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:10px;animation:slideDown .3s ease;}
+.toast-success{border-left:3px solid #22C55E;}
+.toast-error{border-left:3px solid #EF4444;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+.page-header{padding:52px 20px 16px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.page-header h1{font-size:20px;font-weight:800;}
+.page-content{flex:1;padding:16px 20px 100px;overflow-y:auto;}
+.chip-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.chip-row::-webkit-scrollbar{display:none;}
+.chip{padding:6px 14px;border-radius:100px;font-size:13px;font-weight:600;border:1.5px solid var(--border);background:#fff;color:var(--slate-light);cursor:pointer;white-space:nowrap;transition:all .15s;}
+.chip.active{background:var(--orange);color:#fff;border-color:var(--orange);}
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.cat-item{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px;background:#fff;border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s;}
+.cat-item:active,.cat-item.selected{background:var(--orange-light);border-color:var(--orange);}
+.cat-icon{font-size:22px;}
+.cat-label{font-size:10px;font-weight:600;color:var(--slate);text-align:center;line-height:1.2;}
+.worker-card{background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:14px;display:flex;gap:12px;margin-bottom:12px;}
+.worker-avatar{width:56px;height:56px;border-radius:14px;background:#FFF7ED;flex-shrink:0;font-size:26px;display:flex;align-items:center;justify-content:center;}
+.worker-info{flex:1;min-width:0;}
+.worker-name{font-size:15px;font-weight:700;color:var(--slate);}
+.chat-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.chat-avatar{width:48px;height:48px;border-radius:50%;background:var(--orange-light);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--orange);font-size:16px;flex-shrink:0;}
+.chat-meta{flex:1;min-width:0;}
+.chat-name{font-size:15px;font-weight:600;}
+.chat-preview{font-size:13px;color:var(--slate-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.chat-time{font-size:11px;color:#94a3b8;white-space:nowrap;}
+.unread-badge{background:var(--orange);color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:2px 7px;margin-top:2px;align-self:flex-start;}
+#map{width:100%;height:calc(100vh - 145px);}
+.onboard-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;}
+.onboard-dot.active{background:var(--orange);width:24px;border-radius:4px;}
+.section-header{font-size:12px;font-weight:700;color:var(--slate-light);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 10px;}
+.menu-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.menu-icon{width:36px;height:36px;border-radius:10px;background:#F8FAFC;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.menu-label{flex:1;font-size:15px;font-weight:500;}
+.booking-card{background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:14px;margin-bottom:10px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;}
+.modal-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:430px;padding:20px;max-height:85vh;overflow-y:auto;}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px;}
+.stat-card{background:var(--orange-light);border-radius:14px;padding:14px;flex:1;}
+.stat-val{font-size:24px;font-weight:800;color:var(--orange);}
+.stat-lbl{font-size:12px;font-weight:600;color:#C2410C;margin-top:2px;}
+.toggle-wrap{display:flex;background:#F1F5F9;border-radius:12px;padding:4px;margin-bottom:20px;}
+.toggle-opt{flex:1;padding:10px;text-align:center;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;color:var(--slate-light);}
+.toggle-opt.active{background:#fff;color:var(--orange);box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.review-item{padding:12px 0;border-bottom:1px solid var(--border);}
+.review-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.review-ava{width:32px;height:32px;border-radius:50%;background:var(--orange-light);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--orange);flex-shrink:0;}
+.avail-day{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.avail-day-name{font-size:11px;font-weight:600;color:var(--slate-light);}
+.avail-day-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;}
+.avail-day-circle.available{background:var(--orange);color:#fff;}
+.avail-day-circle.busy{background:#F1F5F9;color:#94A3B8;}
+.bubble-wrap{display:flex;margin-bottom:10px;}
+.bubble-wrap.sent{justify-content:flex-end;}
+.bubble-wrap.recv{justify-content:flex-start;}
+.bubble{padding:10px 14px;border-radius:16px;max-width:72%;font-size:14px;line-height:1.5;}
+.bubble.sent{background:var(--orange);color:#fff;border-bottom-right-radius:4px;}
+.bubble.recv{background:#F1F5F9;color:var(--slate);border-bottom-left-radius:4px;}
+.bubble-time{font-size:10px;margin-top:4px;opacity:.7;}
+.logo-mark{width:36px;height:36px;background:var(--orange);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.worker-cover{height:180px;background:linear-gradient(135deg,#FFF7ED,#FED7AA);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.worker-profile-avatar{width:84px;height:84px;border-radius:20px;background:#fff;border:3px solid #fff;font-size:36px;display:flex;align-items:center;justify-content:center;position:absolute;bottom:-42px;left:20px;box-shadow:0 4px 12px rgba(0,0,0,.1);}
+.bar{border-radius:6px 6px 0 0;background:var(--orange);opacity:.85;min-height:4px;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fadeIn .2s ease;}
+</style>
+</head>
+<body>
+<div id="root"><div style="min-height: 100vh; background: rgb(255, 255, 255); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 32px; text-align: center;"><div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 32px;"><div class="logo-mark"><span style="color: rgb(255, 255, 255); font-size: 20px; font-weight: 800;">A</span></div><span style="font-size: 22px; font-weight: 800; color: rgb(30, 41, 59);">Aura<span style="color: rgb(249, 115, 22);">stic</span></span></div><div style="font-size: 72px; margin-bottom: 24px;">🔍</div><div style="display: flex; gap: 6px; margin-bottom: 28px;"><div class="onboard-dot active"></div><div class="onboard-dot"></div><div class="onboard-dot"></div></div><h2 style="font-size: 26px; font-weight: 800; color: rgb(30, 41, 59); margin-bottom: 12px; line-height: 1.3;">Find trusted workers nearby</h2><p style="font-size: 15px; color: rgb(100, 116, 139); line-height: 1.7; margin-bottom: 40px;">Browse 35+ service categories and connect with verified professionals in your city within minutes.</p><button class="btn-primary" style="max-width: 300px;">Next →</button><button class="btn-ghost" style="margin-top: 12px;">Skip</button></div><div class="toast-container"></div></div>
+<script>
+window.addEventListener('load', function() {
+  var h = React.createElement;
+  var useState = React.useState;
+  var useEffect = React.useEffect;
+  var useContext = React.useContext;
+  var createContext = React.createContext;
+  var useRef = React.useRef;
+  var useMemo = React.useMemo;
+
+  // ── DATA ──────────────────────────────────────────────────────────
+  var CATEGORIES = [
+    {id:'elec',label:'Electrician',icon:'⚡'},{id:'plumb',label:'Plumber',icon:'🔧'},
+    {id:'carp',label:'Carpenter',icon:'🪚'},{id:'paint',label:'Painter',icon:'🎨'},
+    {id:'maid',label:'Housekeeping',icon:'🧹'},{id:'cook',label:'Cook',icon:'🍳'},
+    {id:'driver',label:'Driver',icon:'🚗'},{id:'ac',label:'AC Tech',icon:'❄️'},
+    {id:'fridge',label:'Fridge Repair',icon:'🧊'},{id:'wash',label:'Washing Machine',icon:'👕'},
+    {id:'tv',label:'TV Repair',icon:'📺'},{id:'purifier',label:'Water Purifier',icon:'💧'},
+    {id:'pest',label:'Pest Control',icon:'🪲'},{id:'garden',label:'Gardener',icon:'🌿'},
+    {id:'security',label:'Security',icon:'🛡️'},{id:'welder',label:'Welder',icon:'🔥'},
+    {id:'mason',label:'Mason',icon:'🧱'},{id:'tile',label:'Tile Worker',icon:'🏠'},
+    {id:'glass',label:'Glass Repair',icon:'🪟'},{id:'roof',label:'Roof Repair',icon:'🏗️'},
+    {id:'sofa',label:'Sofa Repair',icon:'🛋️'},{id:'curtain',label:'Curtains',icon:'🪞'},
+    {id:'floor',label:'Flooring',icon:'📐'},{id:'ceiling',label:'False Ceiling',icon:'✨'},
+    {id:'interior',label:'Interior',icon:'🖼️'},{id:'movers',label:'Movers',icon:'📦'},
+    {id:'delivery',label:'Delivery',icon:'🛵'},{id:'laundry',label:'Laundry',icon:'🧺'},
+    {id:'tailor',label:'Tailor',icon:'🪡'},{id:'beauty',label:'Beautician',icon:'💅'},
+    {id:'massage',label:'Massage',icon:'💆'},{id:'yoga',label:'Yoga',icon:'🧘'},
+    {id:'tutor',label:'Tutor',icon:'📚'},{id:'baby',label:'Baby Care',icon:'👶'},
+    {id:'elder',label:'Elder Care',icon:'🤝'},
+  ];
+
+  var WORKERS = [
+    {id:'w1',name:'Ramesh Kumar',emoji:'👨‍🔧',categories:['elec','ac'],rating:4.8,reviews:124,distance:1.2,priceHr:250,bio:'10+ years of electrical work. Specialising in home wiring, AC installation and repair across Bhopal.',verified:true,city:'Bhopal',exp:10,lat:23.265,lng:77.428},
+    {id:'w2',name:'Suresh Yadav',emoji:'🔧',categories:['plumb','mason'],rating:4.6,reviews:87,distance:2.4,priceHr:200,bio:'Expert plumber and mason with 8 years experience. Quick, reliable and affordable.',verified:true,city:'Bhopal',exp:8,lat:23.260,lng:77.415},
+    {id:'w3',name:'Priya Sharma',emoji:'🧹',categories:['maid','cook'],rating:4.9,reviews:210,distance:0.8,priceHr:180,bio:'Experienced housekeeper and cook. Known for cleanliness and punctuality.',verified:true,city:'Bhopal',exp:5,lat:23.272,lng:77.432},
+    {id:'w4',name:'Ajay Tiwari',emoji:'🎨',categories:['paint','interior'],rating:4.5,reviews:56,distance:3.1,priceHr:300,bio:'Professional painter and interior decorator. Transform your space with quality work.',verified:false,city:'Bhopal',exp:6,lat:23.255,lng:77.440},
+    {id:'w5',name:'Neha Joshi',emoji:'💅',categories:['beauty','massage'],rating:4.7,reviews:183,distance:1.7,priceHr:350,bio:'Certified beautician with 7 years in bridal and personal care.',verified:true,city:'Bhopal',exp:7,lat:23.268,lng:77.422},
+    {id:'w6',name:'Mohan Patel',emoji:'🪚',categories:['carp','sofa'],rating:4.4,reviews:44,distance:4.2,priceHr:220,bio:'Skilled carpenter for custom furniture, repairs and modular kitchens.',verified:true,city:'Bhopal',exp:12,lat:23.258,lng:77.450},
+    {id:'w7',name:'Kavita Dubey',emoji:'📚',categories:['tutor','baby'],rating:4.9,reviews:98,distance:1.5,priceHr:400,bio:'Experienced tutor (Class 6–12 PCM). Also provides trusted baby care.',verified:true,city:'Bhopal',exp:4,lat:23.275,lng:77.418},
+    {id:'w8',name:'Dinesh Soni',emoji:'❄️',categories:['ac','fridge','wash'],rating:4.6,reviews:132,distance:2.9,priceHr:280,bio:'AC, refrigerator and washing machine technician. Same-day service available.',verified:true,city:'Bhopal',exp:9,lat:23.261,lng:77.435},
+  ];
+
+  var REVIEWS = [
+    {id:'r1',workerId:'w1',user:'Aditya M.',rating:5,text:'Ramesh fixed our wiring issue in under 2 hours. Very professional.',date:'2 days ago',initials:'AM'},
+    {id:'r2',workerId:'w1',user:'Sunita K.',rating:5,text:'Excellent work! Will hire again.',date:'1 week ago',initials:'SK'},
+    {id:'r3',workerId:'w1',user:'Ravi P.',rating:4,text:'Good job but slightly late. Overall satisfied.',date:'2 weeks ago',initials:'RP'},
+    {id:'r4',workerId:'w2',user:'Meena S.',rating:5,text:'Fixed the leak quickly. Very reasonable.',date:'3 days ago',initials:'MS'},
+  ];
+
+  var CHATS = [
+    {id:'c1',name:'Ramesh Kumar',initials:'RK',category:'Electrician',lastMsg:'Sure, I can come tomorrow at 10am',time:'2m ago',unread:2,online:true,msgs:[
+      {id:'m1',text:'Hello, I need help with my wiring issue.',sent:false,time:'Yesterday 3:00 PM'},
+      {id:'m2',text:'Sure! What kind of wiring issue are you facing?',sent:true,time:'Yesterday 3:05 PM'},
+      {id:'m3',text:'The main board keeps tripping every night.',sent:false,time:'Yesterday 3:08 PM'},
+      {id:'m4',text:'Sounds like an overload. I can check it. Are you in Bhopal?',sent:true,time:'Yesterday 3:10 PM'},
+      {id:'m5',text:'Yes, MP Nagar area.',sent:false,time:'Yesterday 3:12 PM'},
+      {id:'m6',text:'Sure, I can come tomorrow at 10am',sent:true,time:'Yesterday 3:14 PM'},
+    ]},
+    {id:'c2',name:'Priya Sharma',initials:'PS',category:'Housekeeping',lastMsg:'I charge Rs 180/hr for regular cleaning',time:'1h ago',unread:0,online:false,msgs:[
+      {id:'m1',text:'Hi Priya, are you available on Saturday mornings?',sent:false,time:'Today 9:00 AM'},
+      {id:'m2',text:'Yes I am! What kind of cleaning do you need?',sent:true,time:'Today 9:05 AM'},
+      {id:'m3',text:'Deep cleaning for a 2BHK.',sent:false,time:'Today 9:08 AM'},
+      {id:'m4',text:'I charge Rs 180/hr for regular cleaning',sent:true,time:'Today 9:10 AM'},
+    ]},
+    {id:'c3',name:'Neha Joshi',initials:'NJ',category:'Beautician',lastMsg:'Sure! What services do you need?',time:'3h ago',unread:1,online:true,msgs:[
+      {id:'m1',text:'Hi, I need a home beauty appointment',sent:false,time:'Today 7:00 AM'},
+      {id:'m2',text:'Sure! What services do you need?',sent:true,time:'Today 7:15 AM'},
+    ]},
+  ];
+
+  var BOOKINGS = [
+    {id:'b1',worker:'Ramesh Kumar',category:'Electrician',emoji:'👨‍🔧',date:'Tomorrow, 10:00 AM',status:'upcoming',price:'Rs 500'},
+    {id:'b2',worker:'Priya Sharma',category:'Housekeeping',emoji:'🧹',date:'Sun, 8:00 AM',status:'upcoming',price:'Rs 360'},
+    {id:'b3',worker:'Suresh Yadav',category:'Plumber',emoji:'🔧',date:'15 Jan, 2:00 PM',status:'completed',price:'Rs 400'},
+    {id:'b4',worker:'Ajay Tiwari',category:'Painter',emoji:'🎨',date:'12 Jan, 9:00 AM',status:'completed',price:'Rs 1200'},
+  ];
+
+  var SERVICES_POSTED = [
+    {id:'s1',title:'Home Electrical Wiring & Repair',category:'Electrician',price:'Rs 250/hr',bookings:12},
+    {id:'s2',title:'AC Installation & Servicing',category:'AC Tech',price:'Rs 350/hr',bookings:8},
+  ];
+
+  function getWorkers(filter) { return WORKERS.filter(function(w){return !filter||w.categories.indexOf(filter)>-1;}); }
+  function getWorkerById(id) { return WORKERS.find(function(w){return w.id===id;}); }
+  function getReviewsFor(wid) { return REVIEWS.filter(function(r){return r.workerId===wid;}); }
+
+  // ── CONTEXT ───────────────────────────────────────────────────────
+  var AppCtx = createContext(null);
+
+  function AppProvider(props) {
+    var s = useState(null); var user=s[0]; var setUser=s[1];
+    var r = useState('onboarding'); var route=r[0]; var setRoute=r[1];
+    var t = useState([]); var toasts=t[0]; var setToasts=t[1];
+    var a = useState('search'); var activeTab=a[0]; var setActiveTab=a[1];
+    var c = useState(null); var chatId=c[0]; var setChatId=c[1];
+    var w = useState(null); var workerId=w[0]; var setWorkerId=w[1];
+
+    function toast(msg,type) {
+      if(!type)type='success';
+      var id=Date.now();
+      setToasts(function(prev){return prev.concat([{id:id,msg:msg,type:type}]);});
+      setTimeout(function(){setToasts(function(prev){return prev.filter(function(x){return x.id!==id;});});},3000);
+    }
+
+    function navigate(to,params) {
+      if(!params)params={};
+      setRoute(to);
+      if(params.chatId)setChatId(params.chatId);
+      if(params.workerId)setWorkerId(params.workerId);
+    }
+
+    function login(userData) { setUser(userData); setRoute('dashboard'); }
+    function logout() { setUser(null); setRoute('login'); }
+
+    var val = {user,route,toast,toasts,login,logout,navigate,activeTab,setActiveTab,chatId,setChatId,workerId,setWorkerId};
+    return h(AppCtx.Provider,{value:val},props.children);
+  }
+
+  function useApp() { return useContext(AppCtx); }
+
+  // ── ICON ──────────────────────────────────────────────────────────
+  var PATHS = {
+    search:'M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z',
+    map:'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z',
+    chat:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
+    user:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
+    chevLeft:'M15 18l-6-6 6-6',
+    chevRight:'M9 18l6-6-6-6',
+    send:'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z',
+    edit:'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z',
+    trash:'M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2',
+    xmark:'M18 6L6 18M6 6l12 12',
+    logout:'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',
+    settings:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z',
+  };
+  function Icon(props) {
+    var n=props.n; var size=props.size||20; var color=props.color||'currentColor';
+    return h('svg',{viewBox:'0 0 24 24',style:{width:size,height:size,stroke:color,fill:'none',strokeWidth:1.8,strokeLinecap:'round',strokeLinejoin:'round',flexShrink:0},dangerouslySetInnerHTML:{__html:'<path d="'+(PATHS[n]||'')+'"/>'}});
+  }
+
+  function Stars(props) {
+    var rating=props.rating; var size=props.size||13;
+    return h('div',{style:{display:'flex',gap:2}},
+      [1,2,3,4,5].map(function(i){return h('span',{key:i,style:{fontSize:size,color:i<=Math.round(rating)?'#FCD34D':'#E2E8F0'}},'★');})
+    );
+  }
+
+  // ── TOASTS ────────────────────────────────────────────────────────
+  function Toasts() {
+    var app=useApp();
+    return h('div',{className:'toast-container'},
+      app.toasts.map(function(t){return h('div',{key:t.id,className:'toast toast-'+t.type},h('span',null,t.type==='success'?'✓':'✕'),' ',t.msg);})
+    );
+  }
+
+  // ── ONBOARDING ────────────────────────────────────────────────────
+  function Onboarding() {
+    var app=useApp();
+    var s=useState(0); var slide=s[0]; var setSlide=s[1];
+    var slides=[
+      {emoji:'🔍',title:'Find trusted workers nearby',desc:'Browse 35+ service categories and connect with verified professionals in your city within minutes.'},
+      {emoji:'✅',title:'Verified profiles, upfront pricing',desc:'Every worker has real reviews, ratings and transparent pricing. No surprises, no middlemen.'},
+      {emoji:'💬',title:'Chat, book, done',desc:'Message workers directly, book appointments, and track everything in one place — Aurastic.'},
+    ];
+    var cur=slides[slide];
+    return h('div',{style:{minHeight:'100vh',background:'#fff',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'40px 32px',textAlign:'center'}},
+      h('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginBottom:32}},
+        h('div',{className:'logo-mark'},h('span',{style:{color:'#fff',fontSize:20,fontWeight:800}},'A')),
+        h('span',{style:{fontSize:22,fontWeight:800,color:'#1E293B'}},'Aura',h('span',{style:{color:'#F97316'}},'stic'))
+      ),
+      h('div',{style:{fontSize:72,marginBottom:24}},cur.emoji),
+      h('div',{style:{display:'flex',gap:6,marginBottom:28}},
+        slides.map(function(_,i){return h('div',{key:i,className:'onboard-dot'+(i===slide?' active':'')});})
+      ),
+      h('h2',{style:{fontSize:26,fontWeight:800,color:'#1E293B',marginBottom:12,lineHeight:1.3}},cur.title),
+      h('p',{style:{fontSize:15,color:'#64748B',lineHeight:1.7,marginBottom:40}},cur.desc),
+      h('button',{className:'btn-primary',style:{maxWidth:300},onClick:function(){slide<2?setSlide(function(p){return p+1;}):app.navigate('login');}},slide<2?'Next →':'Get Started'),
+      slide<2&&h('button',{className:'btn-ghost',style:{marginTop:12},onClick:function(){app.navigate('login');}},'Skip')
+    );
+  }
+
+  // ── LOGIN ────────────────────────────────────────────────────────
+  function Login() {
+    var app=useApp();
+    var t1=useState('customer'); var type=t1[0]; var setType=t1[1];
+    var t2=useState(''); var email=t2[0]; var setEmail=t2[1];
+    var t3=useState(''); var pass=t3[0]; var setPass=t3[1];
+    var t4=useState(''); var err=t4[0]; var setErr=t4[1];
+
+    function submit() {
+      if(!email||!pass){setErr('Please fill all fields.');return;}
+      if(!/\S+@\S+\.\S+/.test(email)){setErr('Enter a valid email.');return;}
+      app.login({name:'Nothing',email:email,type:type,city:'Bhopal',joined:'April 2025',initials:'N'});
+    }
+
+    return h('div',{className:'screen',style:{background:'#fff',padding:'40px 24px',justifyContent:'center'}},
+      h('div',{style:{display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginBottom:6}},
+        h('div',{className:'logo-mark'},h('span',{style:{color:'#fff',fontSize:20,fontWeight:800}},'A')),
+        h('span',{style:{fontSize:22,fontWeight:800,color:'#1E293B'}},'Aura',h('span',{style:{color:'#F97316'}},'stic'))
+      ),
+      h('p',{style:{textAlign:'center',color:'#64748B',fontSize:13,marginBottom:32}},'Organising the Unorganised'),
+      h('div',{className:'toggle-wrap'},
+        ['customer','provider'].map(function(tp){return h('div',{key:tp,className:'toggle-opt'+(type===tp?' active':''),onClick:function(){setType(tp);}},tp==='customer'?'🔍 Customer':'🛠️ Provider');})
+      ),
+      h('div',{className:'input-wrap'},h('label',null,'Email'),h('input',{className:'input-field',type:'email',placeholder:'your@email.com',value:email,onChange:function(e){setEmail(e.target.value);}})),
+      h('div',{className:'input-wrap'},h('label',null,'Password'),h('input',{className:'input-field',type:'password',placeholder:'••••••••',value:pass,onChange:function(e){setPass(e.target.value);}})),
+      err&&h('p',{style:{color:'#EF4444',fontSize:13,marginBottom:12}},err),
+      h('button',{className:'btn-primary',onClick:submit},'Login'),
+      h('p',{style:{textAlign:'center',marginTop:20,fontSize:14,color:'#64748B'}},
+        'New here? ',h('span',{style:{color:'#F97316',fontWeight:600,cursor:'pointer'},onClick:function(){app.navigate('signup');}},'Sign Up')
+      )
+    );
+  }
+
+  // ── SIGNUP ────────────────────────────────────────────────────────
+  function Signup() {
+    var app=useApp();
+    var t1=useState('customer'); var type=t1[0]; var setType=t1[1];
+    var t2=useState({name:'',email:'',phone:'',pass:'',city:'',exp:'',cats:[]}); var form=t2[0]; var setForm=t2[1];
+    var t3=useState(1); var step=t3[0]; var setStep=t3[1];
+    var t4=useState(''); var err=t4[0]; var setErr=t4[1];
+
+    function set(k,v){setForm(function(f){var n=Object.assign({},f);n[k]=v;return n;});}
+    function toggleCat(c){setForm(function(f){var cats=f.cats.indexOf(c)>-1?f.cats.filter(function(x){return x!==c;}):f.cats.concat([c]);return Object.assign({},f,{cats:cats});});}
+    function validate(){
+      if(!form.name||!form.email||!form.phone||!form.pass||!form.city){setErr('Fill all fields.');return false;}
+      if(!/\S+@\S+\.\S+/.test(form.email)){setErr('Invalid email.');return false;}
+      if(!/^\d{10}$/.test(form.phone)){setErr('Phone must be 10 digits.');return false;}
+      setErr('');return true;
+    }
+    function submit(){
+      if(type==='provider'&&form.cats.length===0){setErr('Select at least one category.');return;}
+      app.login({name:form.name,email:form.email,type:type,city:form.city,joined:'April 2025',initials:form.name.slice(0,2).toUpperCase()});
+      app.toast('Welcome to Aurastic! 🎉');
+    }
+    function inp(label,key,extra){
+      if(!extra)extra={};
+      return h('div',{className:'input-wrap'},h('label',null,label),h('input',Object.assign({className:'input-field',value:form[key],onChange:function(e){set(key,e.target.value);}},extra)));
+    }
+
+    return h('div',{className:'screen',style:{background:'#fff',overflowY:'auto'}},
+      h('div',{style:{padding:'40px 24px 100px'}},
+        h('button',{style:{background:'none',marginBottom:16,display:'flex',alignItems:'center',gap:4,color:'#64748B'},onClick:function(){step===2?setStep(1):app.navigate('login');}},
+          h(Icon,{n:'chevLeft',size:20}),' Back'
+        ),
+        step===1&&h('div',null,
+          h('h2',{style:{fontSize:24,fontWeight:800,marginBottom:4}},'Create Account'),
+          h('p',{style:{color:'#64748B',fontSize:14,marginBottom:24}},'Join Aurastic today'),
+          h('div',{className:'toggle-wrap'},
+            ['customer','provider'].map(function(tp){return h('div',{key:tp,className:'toggle-opt'+(type===tp?' active':''),onClick:function(){setType(tp);}},tp==='customer'?'👤 Customer':'🛠️ Provider');})
+          ),
+          inp('Full Name','name',{placeholder:'Your full name'}),
+          inp('Email','email',{type:'email',placeholder:'your@email.com'}),
+          inp('Phone','phone',{type:'tel',placeholder:'10-digit mobile number'}),
+          inp('Password','pass',{type:'password',placeholder:'Min 8 characters'}),
+          inp('City','city',{placeholder:'e.g. Bhopal'}),
+          type==='provider'&&inp('Years of Experience','exp',{type:'number',placeholder:'e.g. 5'}),
+          err&&h('p',{style:{color:'#EF4444',fontSize:13,marginBottom:12}},err),
+          h('button',{className:'btn-primary',onClick:function(){if(validate()){type==='customer'?submit():setStep(2);}}},type==='customer'?'Create Account':'Next: Choose Services →')
+        ),
+        step===2&&h('div',null,
+          h('h2',{style:{fontSize:22,fontWeight:800,marginBottom:4}},'Your Services'),
+          h('p',{style:{color:'#64748B',fontSize:14,marginBottom:16}},form.cats.length+' selected'),
+          h('div',{className:'cat-grid'},
+            CATEGORIES.map(function(c){return h('div',{key:c.id,className:'cat-item'+(form.cats.indexOf(c.id)>-1?' selected':''),onClick:function(){toggleCat(c.id);}},h('span',{className:'cat-icon'},c.icon),h('span',{className:'cat-label'},c.label));})
+          ),
+          h('div',{style:{marginTop:16,padding:'12px 14px',background:'#FFF7ED',borderRadius:12,fontSize:13,color:'#92400E',marginBottom:16}},'🪪 Aadhaar will be verified to activate your Verified badge.'),
+          err&&h('p',{style:{color:'#EF4444',fontSize:13,marginBottom:12}},err),
+          h('button',{className:'btn-primary',onClick:submit},'Create Account 🎉')
+        )
+      )
+    );
+  }
+
+  // ── SEARCH TAB ────────────────────────────────────────────────────
+  function SearchTab() {
+    var app=useApp();
+    var q1=useState(''); var query=q1[0]; var setQuery=q1[1];
+    var q2=useState('all'); var filter=q2[0]; var setFilter=q2[1];
+    var q3=useState(null); var selCat=q3[0]; var setSelCat=q3[1];
+
+    var workers = useMemo(function(){
+      var w=getWorkers(selCat);
+      if(filter==='nearby')w=w.slice().sort(function(a,b){return a.distance-b.distance;});
+      if(filter==='rated')w=w.slice().sort(function(a,b){return b.rating-a.rating;});
+      if(query)w=w.filter(function(x){
+        return x.name.toLowerCase().indexOf(query.toLowerCase())>-1||
+          x.categories.some(function(cid){var cat=CATEGORIES.find(function(c){return c.id===cid;});return cat&&cat.label.toLowerCase().indexOf(query.toLowerCase())>-1;});
+      });
+      return w;
+    },[selCat,filter,query]);
+
+    function WorkerCard(props) {
+      var w=props.w;
+      var cats=w.categories.slice(0,2).map(function(cid){return CATEGORIES.find(function(c){return c.id===cid;});}).filter(Boolean);
+      return h('div',{className:'worker-card fade-in'},
+        h('div',{className:'worker-avatar'},w.emoji),
+        h('div',{className:'worker-info'},
+          h('div',{style:{display:'flex',alignItems:'center',gap:6}},
+            h('span',{className:'worker-name'},w.name),
+            w.verified&&h('span',{style:{color:'#16A34A',fontSize:13,fontWeight:700}},'✓')
+          ),
+          h('div',{style:{display:'flex',alignItems:'center',gap:6,marginTop:3}},
+            h(Stars,{rating:w.rating,size:12}),
+            h('span',{style:{fontSize:12,color:'#64748B'}},w.rating+' · '+w.distance+'km · Rs '+w.priceHr+'/hr')
+          ),
+          h('div',{style:{display:'flex',flexWrap:'wrap',gap:4,marginTop:6}},
+            cats.map(function(cat){return h('span',{key:cat.id,className:'badge badge-orange'},cat.icon+' '+cat.label);})
+          ),
+          h('div',{style:{display:'flex',gap:8,marginTop:10}},
+            h('button',{className:'btn-outline',style:{flex:1,padding:'7px 10px',fontSize:12,fontWeight:600,borderRadius:9},onClick:function(){app.navigate('workerProfile',{workerId:w.id});}},'View Profile'),
+            h('button',{className:'btn-primary',style:{flex:1,padding:'7px 10px',fontSize:12,fontWeight:600,borderRadius:9},onClick:function(){app.toast('Booking request sent! ✓');}},'Book Now')
+          )
+        )
+      );
+    }
+
+    return h('div',{className:'screen'},
+      h('div',{style:{padding:'52px 16px 12px',background:'#fff',borderBottom:'1px solid #E2E8F0',position:'sticky',top:0,zIndex:50}},
+        h('h1',{style:{fontSize:20,fontWeight:800,marginBottom:12}},'Find Services'),
+        h('div',{style:{position:'relative',marginBottom:12}},
+          h('div',{style:{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',pointerEvents:'none'}},h(Icon,{n:'search',size:18,color:'#94A3B8'})),
+          h('input',{className:'input-field',style:{paddingLeft:40,margin:0},placeholder:'Search services or workers...',value:query,onChange:function(e){setQuery(e.target.value);}})
+        ),
+        h('div',{className:'chip-row'},
+          [{id:'all',l:'All'},{id:'nearby',l:'📍 Nearby'},{id:'rated',l:'⭐ Top Rated'},{id:'available',l:'🟢 Available'}].map(function(f){return h('div',{key:f.id,className:'chip'+(filter===f.id?' active':''),onClick:function(){setFilter(f.id);}},f.l);})
+        )
+      ),
+      h('div',{style:{flex:1,overflowY:'auto',padding:'16px 16px 100px'}},
+        !selCat&&h('div',null,
+          h('p',{className:'section-header'},'Browse Categories'),
+          h('div',{className:'cat-grid',style:{marginBottom:20}},
+            CATEGORIES.slice(0,16).map(function(c){return h('div',{key:c.id,className:'cat-item',onClick:function(){setSelCat(c.id);}},h('span',{className:'cat-icon'},c.icon),h('span',{className:'cat-label'},c.label));})
+          )
+        ),
+        selCat&&h('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:16}},
+          h('button',{style:{background:'none',display:'flex',alignItems:'center',gap:4,color:'#F97316',fontSize:14,fontWeight:600},onClick:function(){setSelCat(null);}},h(Icon,{n:'chevLeft',size:16,color:'#F97316'}),' All Categories'),
+          h('span',{style:{color:'#64748B',fontSize:14}}, '/ '+(CATEGORIES.find(function(c){return c.id===selCat;})||{label:''}).label)
+        ),
+        h('p',{className:'section-header'},selCat?workers.length+' Workers Found':'All Workers'),
+        workers.map(function(w){return h(WorkerCard,{key:w.id,w:w});}),
+        workers.length===0&&h('div',{style:{textAlign:'center',padding:'40px 20px',color:'#94A3B8'}},
+          h('div',{style:{fontSize:48,marginBottom:12}},'🔍'),
+          h('p',{style:{fontSize:16,fontWeight:600}},'No workers found'),
+          h('p',{style:{fontSize:14,marginTop:4}},'Try a different search')
+        )
+      )
+    );
+  }
+
+  // ── WORKER PROFILE ────────────────────────────────────────────────
+  function WorkerProfile() {
+    var app=useApp();
+    var b1=useState(false); var bookModal=b1[0]; var setBookModal=b1[1];
+    var w=getWorkerById(app.workerId)||WORKERS[0];
+    var reviews=getReviewsFor(w.id);
+    var DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    var available=[0,1,2,3,4];
+
+    return h('div',{className:'screen',style:{background:'#fff'}},
+      h('div',{style:{position:'relative'}},
+        h('div',{className:'worker-cover'},h('div',{style:{fontSize:60,opacity:.15}},w.emoji)),
+        h('button',{style:{position:'absolute',top:52,left:16,background:'rgba(255,255,255,.95)',border:'1px solid #E2E8F0',borderRadius:10,width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center'},onClick:function(){app.navigate('dashboard');}},h(Icon,{n:'chevLeft',size:18})),
+        h('div',{className:'worker-profile-avatar'},w.emoji)
+      ),
+      h('div',{style:{padding:'54px 20px 120px',overflowY:'auto'}},
+        h('div',{style:{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:6}},
+          h('div',null,
+            h('h1',{style:{fontSize:22,fontWeight:800,display:'flex',alignItems:'center',gap:6}},w.name,w.verified&&h('span',{style:{color:'#16A34A',fontSize:15}},'✓')),
+            h('p',{style:{color:'#64748B',fontSize:13,marginTop:2}},w.city+' · '+w.exp+' yrs exp')
+          ),
+          h('div',{style:{textAlign:'right'}},h('span',{style:{fontSize:20,fontWeight:800,color:'#F97316'}},'Rs '+w.priceHr),h('span',{style:{fontSize:12,color:'#64748B'}},'/hr'))
+        ),
+        h('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:12}},h(Stars,{rating:w.rating}),h('span',{style:{fontSize:13,color:'#64748B'}},w.rating+' · '+w.reviews+' reviews')),
+        h('div',{style:{display:'flex',flexWrap:'wrap',gap:6,marginBottom:16}},
+          w.categories.map(function(cid){var cat=CATEGORIES.find(function(c){return c.id===cid;});return cat&&h('span',{key:cid,className:'badge badge-orange',style:{fontSize:12,padding:'4px 10px'}},cat.icon+' '+cat.label);})
+        ),
+        h('p',{style:{color:'#475569',fontSize:14,lineHeight:1.7,marginBottom:20}},w.bio),
+        h('div',{className:'card',style:{marginBottom:16}},
+          h('p',{style:{fontWeight:700,fontSize:15,marginBottom:12}},'📅 Availability'),
+          h('div',{style:{display:'flex',gap:4}},
+            DAYS.map(function(d,i){return h('div',{key:d,className:'avail-day'},h('span',{className:'avail-day-name'},d),h('div',{className:'avail-day-circle '+(available.indexOf(i)>-1?'available':'busy')},available.indexOf(i)>-1?'✓':'–'));})
+          )
+        ),
+        h('p',{style:{fontWeight:700,fontSize:16,marginBottom:8}},'Reviews ('+reviews.length+')'),
+        reviews.length===0&&h('p',{style:{color:'#94A3B8',fontSize:14}},'No reviews yet'),
+        reviews.map(function(r){return h('div',{key:r.id,className:'review-item'},
+          h('div',{className:'review-header'},h('div',{className:'review-ava'},r.initials),h('div',{style:{flex:1}},h('p',{style:{fontSize:14,fontWeight:600}},r.user),h('p',{style:{fontSize:11,color:'#94A3B8'}},r.date)),h(Stars,{rating:r.rating,size:12})),
+          h('p',{style:{fontSize:14,color:'#475569',lineHeight:1.6}},r.text)
+        );})
+      ),
+      h('div',{style:{position:'fixed',bottom:0,left:'50%',transform:'translateX(-50%)',width:'100%',maxWidth:430,background:'#fff',borderTop:'1px solid #E2E8F0',padding:'12px 20px 24px',display:'flex',gap:12}},
+        h('button',{className:'btn-outline',style:{flex:1},onClick:function(){app.setActiveTab('chat');app.navigate('dashboard');}},'💬 Message'),
+        h('button',{className:'btn-primary',style:{flex:2},onClick:function(){setBookModal(true);}},'📅 Book Now')
+      ),
+      bookModal&&h('div',{className:'modal-overlay',onClick:function(){setBookModal(false);}},
+        h('div',{className:'modal-sheet',onClick:function(e){e.stopPropagation();}},
+          h('div',{className:'modal-handle'}),
+          h('h2',{style:{fontSize:18,fontWeight:800,marginBottom:4}},'Book '+w.name),
+          h('p',{style:{color:'#64748B',fontSize:14,marginBottom:20}},'From Rs '+w.priceHr+'/hr'),
+          h('div',{className:'input-wrap'},h('label',null,'Date'),h('input',{className:'input-field',type:'date'})),
+          h('div',{className:'input-wrap'},h('label',null,'Time'),h('input',{className:'input-field',type:'time'})),
+          h('div',{className:'input-wrap'},h('label',null,'Notes (optional)'),h('textarea',{className:'input-field',rows:3,style:{resize:'none'},placeholder:'Describe your issue...'})),
+          h('div',{style:{background:'#FFF7ED',borderRadius:12,padding:'12px 16px',marginBottom:16}},h('p',{style:{fontSize:13,color:'#92400E',fontWeight:600}},'Estimated Cost'),h('p',{style:{fontSize:20,fontWeight:800,color:'#F97316'}},'Rs '+w.priceHr+' /hr')),
+          h('button',{className:'btn-primary',onClick:function(){setBookModal(false);app.toast('Booking confirmed! ✓');}},'✓ Confirm Booking')
+        )
+      )
+    );
+  }
+
+  // ── NEARBY MAP ────────────────────────────────────────────────────
+  function NearbyTab() {
+    var app=useApp();
+    var mapRef=useRef(null);
+    var mapInstance=useRef(null);
+    var s1=useState('all'); var selCat=s1[0]; var setSelCat=s1[1];
+    var s2=useState(5); var dist=s2[0]; var setDist=s2[1];
+    var s3=useState(null); var selW=s3[0]; var setSelW=s3[1];
+
+    useEffect(function(){
+      if(mapInstance.current||!mapRef.current||!window.L)return;
+      var L=window.L;
+      var map=L.map(mapRef.current,{center:[23.2599,77.4126],zoom:13,zoomControl:true});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+      mapInstance.current=map;
+      WORKERS.forEach(function(w){
+        var marker=L.marker([w.lat,w.lng],{icon:L.divIcon({html:'<div style="background:#F97316;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.2)">'+w.emoji+'</div>',className:'',iconSize:[36,36],iconAnchor:[18,18]})}).addTo(map);
+        marker.on('click',function(){setSelW(w);});
+        L.circle([w.lat,w.lng],{radius:800,color:'#F97316',fillColor:'#F97316',fillOpacity:.04,weight:1,dashArray:'4'}).addTo(map);
+      });
+      L.circle([23.2599,77.4126],{radius:300,color:'#3B82F6',fillColor:'#3B82F6',fillOpacity:.06,weight:1.5,dashArray:'3'}).addTo(map);
+      return function(){if(mapInstance.current){mapInstance.current.remove();mapInstance.current=null;}};
+    },[]);
+
+    return h('div',{className:'screen',style:{position:'relative'}},
+      h('div',{style:{position:'absolute',top:0,left:0,right:0,zIndex:50}},
+        h('div',{style:{padding:'52px 16px 10px',background:'rgba(255,255,255,.97)',borderBottom:'1px solid #E2E8F0'}},
+          h('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}},
+            h('h1',{style:{fontSize:18,fontWeight:800}},'Nearby Workers'),
+            h('span',{style:{fontSize:11,background:'#EFF6FF',color:'#1D4ED8',borderRadius:8,padding:'4px 10px',fontWeight:600}},'🔒 Privacy Safe')
+          ),
+          h('div',{className:'chip-row'},
+            [{id:'all',l:'All'},{id:'elec',l:'⚡ Elec'},{id:'plumb',l:'🔧 Plumber'},{id:'maid',l:'🧹 Maid'},{id:'ac',l:'❄️ AC'}].map(function(c){return h('div',{key:c.id,className:'chip'+(selCat===c.id?' active':''),onClick:function(){setSelCat(c.id);}},c.l);})
+          ),
+          h('div',{style:{display:'flex',alignItems:'center',gap:12,marginTop:8}},
+            h('span',{style:{fontSize:12,color:'#64748B',whiteSpace:'nowrap'}},'Radius:'),
+            h('input',{type:'range',min:1,max:20,value:dist,step:1,style:{flex:1},onChange:function(e){setDist(parseInt(e.target.value));}}),
+            h('span',{style:{fontSize:13,fontWeight:700,color:'#F97316',whiteSpace:'nowrap'}},dist+'km')
+          )
+        )
+      ),
+      h('div',{ref:mapRef,id:'map',style:{width:'100%',height:'100vh'}}),
+      h('div',{style:{position:'absolute',bottom:selW?210:100,left:16,right:16,zIndex:50,pointerEvents:'none'}},
+        h('div',{style:{background:'rgba(255,255,255,.9)',borderRadius:12,padding:'8px 14px',border:'1px solid #E2E8F0',fontSize:12,color:'#64748B',textAlign:'center'}},'📍 Exact locations are never shared with customers')
+      ),
+      selW&&h('div',{style:{position:'absolute',bottom:90,left:16,right:16,zIndex:50,background:'#fff',borderRadius:16,padding:16,boxShadow:'0 4px 20px rgba(0,0,0,.15)',border:'1px solid #E2E8F0'}},
+        h('div',{style:{display:'flex',alignItems:'center',gap:12}},
+          h('div',{style:{fontSize:32}},selW.emoji),
+          h('div',{style:{flex:1}},
+            h('p',{style:{fontWeight:700,fontSize:15}},selW.name),
+            h('p',{style:{fontSize:13,color:'#64748B'}},selW.distance+'km away · Rs '+selW.priceHr+'/hr'),
+            h(Stars,{rating:selW.rating,size:12})
+          ),
+          h('button',{style:{background:'none',padding:4},onClick:function(){setSelW(null);}},h(Icon,{n:'xmark',size:18,color:'#94A3B8'}))
+        ),
+        h('button',{className:'btn-primary',style:{marginTop:12,fontSize:13,padding:'10px'},onClick:function(){app.navigate('workerProfile',{workerId:selW.id});}},'View Profile →')
+      )
+    );
+  }
+
+  // ── CHAT ─────────────────────────────────────────────────────────
+  function ChatTab() {
+    var app=useApp();
+    var v1=useState('list'); var view=v1[0]; var setView=v1[1];
+    var v2=useState(null); var currentChat=v2[0]; var setCurrentChat=v2[1];
+    var v3=useState(''); var newMsg=v3[0]; var setNewMsg=v3[1];
+    var v4=useState([]); var localMsgs=v4[0]; var setLocalMsgs=v4[1];
+    var msgEnd=useRef(null);
+
+    useEffect(function(){if(msgEnd.current)msgEnd.current.scrollIntoView({behavior:'smooth'});},[localMsgs]);
+
+    function openChat(c){setCurrentChat(c);setLocalMsgs(c.msgs);setView('detail');}
+    function sendMsg(){
+      if(!newMsg.trim())return;
+      setLocalMsgs(function(m){return m.concat([{id:'n'+Date.now(),text:newMsg,sent:false,time:'Now'}]);});
+      setNewMsg('');
+      app.toast('Message sent ✓');
+    }
+
+    var chats=CHATS;
+
+    if(view==='detail'&&currentChat){
+      return h('div',{className:'screen',style:{background:'#F8FAFC'}},
+        h('div',{style:{padding:'52px 16px 12px',background:'#fff',borderBottom:'1px solid #E2E8F0',position:'sticky',top:0,zIndex:50}},
+          h('div',{style:{display:'flex',alignItems:'center',gap:12}},
+            h('button',{style:{background:'none'},onClick:function(){setView('list');}},h(Icon,{n:'chevLeft',size:22})),
+            h('div',{className:'chat-avatar',style:{width:38,height:38,fontSize:13}},currentChat.initials),
+            h('div',{style:{flex:1}},
+              h('p',{style:{fontWeight:700,fontSize:15}},currentChat.name),
+              h('p',{style:{fontSize:12,color:currentChat.online?'#16A34A':'#94A3B8'}},(currentChat.online?'● Online':'○ Offline')+' · '+currentChat.category)
+            )
+          )
+        ),
+        h('div',{style:{flex:1,overflowY:'auto',padding:'16px',paddingBottom:80}},
+          localMsgs.map(function(m){return h('div',{key:m.id,className:'bubble-wrap '+(m.sent?'recv':'sent')},h('div',{className:'bubble '+(m.sent?'recv':'sent')},m.text,h('div',{className:'bubble-time'},m.time)));})
+          ,h('div',{ref:msgEnd})
+        ),
+        h('div',{style:{position:'sticky',bottom:0,background:'#fff',borderTop:'1px solid #E2E8F0',padding:'10px 16px 24px',display:'flex',gap:10,alignItems:'center'}},
+          h('input',{className:'input-field',style:{flex:1,margin:0,borderRadius:100,padding:'10px 16px'},placeholder:'Type a message...',value:newMsg,onChange:function(e){setNewMsg(e.target.value);},onKeyDown:function(e){if(e.key==='Enter')sendMsg();}}),
+          h('button',{style:{width:42,height:42,background:'#F97316',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,border:'none'},onClick:sendMsg},h(Icon,{n:'send',size:17,color:'#fff'}))
+        )
+      );
+    }
+
+    return h('div',{className:'screen'},
+      h('div',{className:'page-header'},h('h1',null,'Messages')),
+      h('div',{className:'page-content'},
+        h('p',{className:'section-header'},'Active'),
+        chats.filter(function(c){return c.unread>0;}).map(function(c){return h('div',{key:c.id,className:'chat-row',onClick:function(){openChat(c);}},h('div',{className:'chat-avatar'},c.initials),h('div',{className:'chat-meta'},h('div',{style:{display:'flex',justifyContent:'space-between'}},h('span',{className:'chat-name'},c.name),h('span',{className:'chat-time'},c.time)),h('p',{className:'chat-preview'},c.lastMsg),h('p',{style:{fontSize:11,color:'#94A3B8',marginTop:2}},c.category)),h('div',{className:'unread-badge'},c.unread));}),
+        h('p',{className:'section-header'},'All Conversations'),
+        chats.map(function(c){return h('div',{key:c.id,className:'chat-row',onClick:function(){openChat(c);}},h('div',{className:'chat-avatar',style:{background:c.online?'#F0FDF4':'#F8FAFC',color:c.online?'#15803D':'#F97316'}},c.initials),h('div',{className:'chat-meta'},h('div',{style:{display:'flex',justifyContent:'space-between'}},h('span',{className:'chat-name'},c.name),h('span',{className:'chat-time'},c.time)),h('p',{className:'chat-preview'},c.lastMsg)),c.unread>0&&h('div',{className:'unread-badge'},c.unread));})
+      )
+    );
+  }
+
+  // ── WORKER DASHBOARD ───────────────────────────────────────────────
+  function WorkerDashboard() {
+    var app=useApp();
+    var m1=useState(null); var modal=m1[0]; var setModal=m1[1];
+    var reqs=[{id:'br1',customer:'Aditya M.',service:'Electrical Repair',date:'Tomorrow 10am'},{id:'br2',customer:'Sunita K.',service:'AC Servicing',date:'Sat 2pm'}];
+    return h('div',{className:'screen'},
+      h('div',{className:'page-header'},
+        h('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between'}},h('h1',null,'Dashboard'),h('span',{style:{fontSize:22}},'👋')),
+        h('p',{style:{color:'#64748B',fontSize:13,marginTop:2}},'You have '+reqs.length+' booking requests')
+      ),
+      h('div',{className:'page-content'},
+        h('div',{style:{display:'flex',gap:12,marginBottom:20}},
+          h('div',{className:'stat-card'},h('p',{className:'stat-val'},'24'),h('p',{className:'stat-lbl'},'Total Jobs')),
+          h('div',{className:'stat-card'},h('p',{className:'stat-val'},'2'),h('p',{className:'stat-lbl'},'Requests')),
+          h('div',{className:'stat-card'},h('p',{className:'stat-val'},'Rs 8.4k'),h('p',{className:'stat-lbl'},'Wallet'))
+        ),
+        h('div',{style:{display:'flex',gap:10,marginBottom:20}},
+          h('button',{className:'btn-primary',style:{flex:1,padding:'12px',fontSize:13},onClick:function(){setModal('service');}},'+ Post Service'),
+          h('button',{className:'btn-outline',style:{flex:1,padding:'12px',fontSize:13},onClick:function(){setModal('vacancy');}},'+ Job Vacancy')
+        ),
+        h('p',{className:'section-header'},'Booking Requests'),
+        reqs.map(function(r){return h('div',{key:r.id,className:'card',style:{marginBottom:12}},h('p',{style:{fontWeight:700,fontSize:15}},r.customer),h('p',{style:{fontSize:13,color:'#64748B',marginTop:2,marginBottom:10}},r.service+' · '+r.date),h('div',{style:{display:'flex',gap:8}},h('button',{className:'btn-primary',style:{flex:1,padding:'9px',fontSize:13},onClick:function(){app.toast('Accepted ✓');}},'Accept'),h('button',{style:{flex:1,padding:'9px',fontSize:13,border:'1px solid #E2E8F0',borderRadius:10,background:'none',cursor:'pointer',fontFamily:'inherit'},onClick:function(){app.toast('Declined');}},'Decline')));})
+        ,
+        h('p',{className:'section-header'},'My Services'),
+        SERVICES_POSTED.map(function(s){return h('div',{key:s.id,className:'card',style:{marginBottom:10}},h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}},h('div',null,h('p',{style:{fontWeight:600,fontSize:14}},s.title),h('p',{style:{fontSize:12,color:'#64748B',marginTop:2}},s.category+' · '+s.price)),h('span',{className:'badge badge-green'},s.bookings+' bookings')));})
+        ,
+        modal&&h('div',{className:'modal-overlay',onClick:function(){setModal(null);}},
+          h('div',{className:'modal-sheet',onClick:function(e){e.stopPropagation();}},
+            h('div',{className:'modal-handle'}),
+            h('h2',{style:{fontSize:18,fontWeight:800,marginBottom:16}},modal==='service'?'Post a Service':'Post Job Vacancy'),
+            h('div',{className:'input-wrap'},h('label',null,'Title'),h('input',{className:'input-field',placeholder:'e.g. Home Wiring & Repair'})),
+            h('div',{className:'input-wrap'},h('label',null,'Category'),h('select',{className:'input-field'},CATEGORIES.map(function(c){return h('option',{key:c.id,value:c.id},c.icon+' '+c.label);}))),
+            h('div',{className:'input-wrap'},h('label',null,'Description'),h('textarea',{className:'input-field',rows:3,style:{resize:'none'}})),
+            h('div',{className:'input-wrap'},h('label',null,'Price (Rs)'),h('input',{className:'input-field',type:'number',placeholder:'250'})),
+            h('button',{className:'btn-primary',onClick:function(){setModal(null);app.toast(modal==='service'?'Service posted ✓':'Vacancy posted ✓');}},'Post Now')
+          )
+        )
+      )
+    );
+  }
+
+  // ── PROFILE TAB ──────────────────────────────────────────────────
+  function ProfileTab() {
+    var app=useApp();
+    var isProvider=app.user&&app.user.type==='provider';
+    var n1=useState(true); var notif=n1[0]; var setNotif=n1[1];
+    var EARNINGS=[12,18,9,24,31,16,28];
+    var maxE=Math.max.apply(null,EARNINGS);
+
+    function MenuItem(props) {
+      return h('div',{className:'menu-item',onClick:props.onClick},
+        h('div',{className:'menu-icon'},h('span',{style:{fontSize:16}},props.icon)),
+        h('span',{className:'menu-label'},props.label),
+        props.right||h(Icon,{n:'chevRight',size:16,color:'#94A3B8'})
+      );
+    }
+
+    var bookings=BOOKINGS;
+
+    return h('div',{className:'screen'},
+      h('div',{className:'page-header'},
+        h('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between'}},
+          h('h1',null,'My Profile'),
+          h('button',{style:{background:'none'},onClick:function(){app.toast('Settings coming soon');}},h(Icon,{n:'settings',size:20,color:'#64748B'}))
+        )
+      ),
+      h('div',{className:'page-content'},
+        h('div',{style:{background:'linear-gradient(135deg,#FFF7ED,#FED7AA)',borderRadius:16,padding:'16px',display:'flex',alignItems:'center',gap:14,marginBottom:20}},
+          h('div',{style:{width:64,height:64,borderRadius:18,background:'#F97316',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:800,color:'#fff',flexShrink:0}},(app.user&&app.user.initials)||'N'),
+          h('div',null,
+            h('p',{style:{fontSize:18,fontWeight:800}},(app.user&&app.user.name)||'Nothing'),
+            h('p',{style:{fontSize:13,color:'#92400E',fontWeight:500,marginTop:2}},((app.user&&app.user.city)||'Bhopal')+' · Joined '+((app.user&&app.user.joined)||'April 2025')),
+            isProvider&&h('div',{style:{display:'flex',gap:6,marginTop:6}},h('span',{className:'badge badge-green'},'✓ Verified'),h('span',{className:'badge badge-orange'},'⭐ 4.8'))
+          )
+        ),
+        isProvider&&h('div',null,
+          h('div',{style:{display:'flex',gap:12,marginBottom:20}},
+            h('div',{className:'stat-card'},h('p',{className:'stat-val'},'24'),h('p',{className:'stat-lbl'},'Total Jobs')),
+            h('div',{className:'stat-card'},h('p',{className:'stat-val'},'3'),h('p',{className:'stat-lbl'},'Active')),
+            h('div',{className:'stat-card'},h('p',{className:'stat-val'},'Rs 8.4k'),h('p',{className:'stat-lbl'},'Wallet'))
+          ),
+          h('div',{className:'card',style:{marginBottom:20}},
+            h('p',{style:{fontWeight:700,fontSize:15,marginBottom:12}},'💰 Weekly Earnings'),
+            h('div',{style:{display:'flex',alignItems:'flex-end',gap:6,height:80,padding:'0 4px'}},
+              EARNINGS.map(function(e,i){return h('div',{key:i,className:'bar',style:{flex:1,height:Math.round((e/maxE)*100)+'%'}});})
+            ),
+            h('div',{style:{display:'flex',gap:6,paddingTop:4}},
+              ['M','T','W','T','F','S','S'].map(function(d,i){return h('span',{key:i,style:{flex:1,textAlign:'center',fontSize:10,color:'#64748B'}},d);})
+            )
+          ),
+          h('p',{className:'section-header'},'Posted Services'),
+          SERVICES_POSTED.map(function(s){return h('div',{key:s.id,className:'card',style:{marginBottom:10}},h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}},h('div',null,h('p',{style:{fontWeight:600,fontSize:14}},s.title),h('p',{style:{fontSize:12,color:'#64748B',marginTop:2}},s.category+' · '+s.price)),h('div',{style:{display:'flex',gap:8}},h('button',{style:{background:'none'},onClick:function(){app.toast('Edit coming soon');}},h(Icon,{n:'edit',size:15,color:'#64748B'})),h('button',{style:{background:'none'},onClick:function(){app.toast('Service deleted');}},h(Icon,{n:'trash',size:15,color:'#EF4444'})))));})
+          ,
+          h('div',{style:{background:'linear-gradient(135deg,#F97316,#FB923C)',borderRadius:16,padding:'16px 20px',marginBottom:20,color:'#fff'}},
+            h('p',{style:{fontWeight:800,fontSize:16}},'🚀 Upgrade to Premium'),
+            h('p',{style:{fontSize:13,opacity:.9,marginTop:2}},'Priority listing, verified badge & more bookings'),
+            h('button',{style:{marginTop:10,background:'rgba(255,255,255,.2)',border:'1px solid rgba(255,255,255,.4)',color:'#fff',borderRadius:10,padding:'8px 16px',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}},'Upgrade Now')
+          )
+        ),
+        !isProvider&&h('div',null,
+          h('p',{className:'section-header'},'Upcoming Bookings'),
+          bookings.filter(function(b){return b.status==='upcoming';}).map(function(b){return h('div',{key:b.id,className:'booking-card'},h('div',{style:{display:'flex',alignItems:'center',gap:12}},h('span',{style:{fontSize:28}},b.emoji),h('div',{style:{flex:1}},h('p',{style:{fontWeight:700,fontSize:14}},b.worker),h('p',{style:{fontSize:12,color:'#64748B',marginTop:2}},b.category+' · '+b.date)),h('span',{className:'badge badge-blue'},b.price)));})
+          ,
+          h('p',{className:'section-header'},'Past Bookings'),
+          bookings.filter(function(b){return b.status==='completed';}).map(function(b){return h('div',{key:b.id,className:'booking-card'},h('div',{style:{display:'flex',alignItems:'center',gap:12}},h('span',{style:{fontSize:28}},b.emoji),h('div',{style:{flex:1}},h('p',{style:{fontWeight:700,fontSize:14}},b.worker),h('p',{style:{fontSize:12,color:'#64748B',marginTop:2}},b.category+' · '+b.date)),h('span',{className:'badge badge-gray'},'Done')));})
+        ),
+        h('p',{className:'section-header'},'Settings'),
+        h(MenuItem,{icon:'✏️',label:'Edit Profile',onClick:function(){app.toast('Edit Profile coming soon');}}),
+        h('div',{className:'menu-item'},
+          h('div',{className:'menu-icon'},h('span',{style:{fontSize:16}},'🔔')),
+          h('span',{className:'menu-label'},'Notifications'),
+          h('div',{style:{width:44,height:24,borderRadius:12,background:notif?'#F97316':'#E2E8F0',position:'relative',cursor:'pointer',transition:'background .2s'},onClick:function(){setNotif(function(n){return !n;});app.toast(notif?'Notifications off':'Notifications on');}},
+            h('div',{style:{width:18,height:18,borderRadius:'50%',background:'#fff',position:'absolute',top:3,left:notif?23:3,transition:'left .2s'}})
+          )
+        ),
+        h(MenuItem,{icon:'🌐',label:'Language',right:h('span',{style:{fontSize:13,color:'#64748B',fontWeight:500}},'English')}),
+        h(MenuItem,{icon:'❓',label:'Help & Support',onClick:function(){app.toast('support@aurastic.in');}}),
+        h(MenuItem,{icon:'🔒',label:'Privacy Policy',onClick:function(){app.toast('Opening privacy policy...');}}),
+        h('div',{className:'menu-item',onClick:app.logout},
+          h('div',{className:'menu-icon',style:{background:'#FFF5F5'}},h(Icon,{n:'logout',size:16,color:'#EF4444'})),
+          h('span',{className:'menu-label',style:{color:'#EF4444'}},'Logout')
+        )
+      )
+    );
+  }
+
+  // ── APP SHELL ─────────────────────────────────────────────────────
+  function AppShell() {
+    var app=useApp();
+    var isProvider=app.user&&app.user.type==='provider';
+    var tabs=[{id:'search',icon:'search',label:'Search'},{id:'nearby',icon:'map',label:'Nearby'},{id:'chat',icon:'chat',label:'Chat'},{id:'profile',icon:'user',label:isProvider?'Services':'Profile'}];
+    var Content=function(){
+      switch(app.activeTab){
+        case 'search': return isProvider?h(WorkerDashboard):h(SearchTab);
+        case 'nearby': return h(NearbyTab);
+        case 'chat':   return h(ChatTab);
+        case 'profile':return h(ProfileTab);
+        default:       return h(SearchTab);
+      }
+    };
+    return h('div',{style:{position:'relative',minHeight:'100vh'}},
+      h(Content),
+      h('nav',{className:'bottom-nav'},
+        tabs.map(function(t){return h('button',{key:t.id,className:'nav-item'+(app.activeTab===t.id?' active':''),onClick:function(){app.setActiveTab(t.id);}},h(Icon,{n:t.icon,size:22,color:app.activeTab===t.id?'#F97316':'#94A3B8'}),h('span',{className:'nav-label',style:{color:app.activeTab===t.id?'#F97316':'#94A3B8'}},t.label));})
+      )
+    );
+  }
+
+  // ── ROUTER ────────────────────────────────────────────────────────
+  function Router() {
+    var app=useApp();
+    switch(app.route){
+      case 'onboarding':    return h(Onboarding);
+      case 'login':         return h(Login);
+      case 'signup':        return h(Signup);
+      case 'dashboard':     return h(AppShell);
+      case 'workerProfile': return h(WorkerProfile);
+      default: return h('div',{style:{padding:40,textAlign:'center'}},h('div',{style:{fontSize:64,marginBottom:12}},'404'),h('p',{style:{color:'#64748B'}},'Page not found'));
+    }
+  }
+
+  function App() {
+    return h(AppProvider,null,h(React.Fragment,null,h(Router),h(Toasts)));
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+});
+</script>
+
+</body></html>
